@@ -68,6 +68,8 @@ const loginUser = async (req, res) => {
       }
     );
 
+    res.cookie("token", token);
+
     res.status(200).json({
       message: "Login successful",
       token,
@@ -80,4 +82,21 @@ const loginUser = async (req, res) => {
     });
   }
 };
-module.exports = {registerUser, loginUser,};
+
+const logoutUser = async(req, res) => {
+    try {
+        res.clearCookie("token");
+
+        res.status(200).json({
+            message:"logout successfully"
+        });
+        
+    } catch (error) {
+            res.status(500).json({
+            message: error.message,
+        });
+    }
+};
+
+
+module.exports = {registerUser, loginUser, logoutUser,};
