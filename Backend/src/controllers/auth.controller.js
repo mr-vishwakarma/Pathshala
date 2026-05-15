@@ -21,25 +21,28 @@ const registerUser = async(req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const verificationTken = crypto.randomBytes(32).toString("hex");
+        const verificationToken = crypto.randomBytes(32).toString("hex");
 
 
         const newUser = await User.create({
             fullname,
             email,
             password: hashedPassword,
-            verificationTken,
+            verificationToken,
         });
+        const verificationURL = `http://localhost:5000/api/auth/verify-email/${verificationToken}`;
+                                
 
-        const verificationURL = `http://localhost:5000/api/verify-email/${verificationToken}`;
         await sendEmail(
           email,
           "Verify Your email",
-          `"Click this link to verify your email:${verifationURL}"`
+          `"Click this link to verify your email:${verificationURL}"`
         )
         res.status(201).json({
             message:"User created Sucessfully",
         })
+
+
         
     } catch (error) {
         res.status(500).json({
@@ -48,6 +51,37 @@ const registerUser = async(req, res) => {
     }
 }
 
+const verifyEmail = async (req, res) => {
+  try {
+
+    const { token } = req.params;
+
+    const user = await User.findOne({
+      verificationToken: token,
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid verification token",
+      });
+    }
+
+    user.isVerified = true;
+
+    user.verificationToken = undefined;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Email Verified Successfully",
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -58,6 +92,12 @@ const loginUser = async (req, res) => {
       return res.status(400).json({
         message: "Invalid email or password",
       });
+    }
+
+    if(!user.isVerified) {
+      return res.status(401).json(
+        {message:"Please verify you email"},
+      );
     }
 
     const isMatch = await bcrypt.compare(
@@ -112,4 +152,4 @@ const logoutUser = async(req, res) => {
 };
 
 
-module.exports = {registerUser, loginUser, logoutUser,};
+module.exports = {registerUser, loginUser, logoutUser, verifyEmail,};

@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const {registerUser, loginUser, logoutUser}= require("../controllers/auth.controller");
+const {registerUser, loginUser, logoutUser, verifyEmail}= require("../controllers/auth.controller");
 const authMiddleware = require("../middleware/auth.middleware");
 
 
@@ -14,7 +14,10 @@ router.get("/profile", authMiddleware,
     }
 );
 
+
+
 router.get("/logout", logoutUser);
+router.get("/verify-email/:token", verifyEmail);
 
 
 module.exports = router;
