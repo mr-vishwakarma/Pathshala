@@ -1,6 +1,9 @@
 const User = require('../models/user.model');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
+const { send } = require('process');
 
 const registerUser = async(req, res) => {
     try {
@@ -18,12 +21,22 @@ const registerUser = async(req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const verificationTken = crypto.randomBytes(32).toString("hex");
+
+
         const newUser = await User.create({
             fullname,
             email,
             password: hashedPassword,
+            verificationTken,
         });
 
+        const verificationURL = `http://localhost:5000/api/verify-email/${verificationToken}`;
+        await sendEmail(
+          email,
+          "Verify Your email",
+          `"Click this link to verify your email:${verifationURL}"`
+        )
         res.status(201).json({
             message:"User created Sucessfully",
         })
