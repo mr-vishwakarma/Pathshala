@@ -1,6 +1,6 @@
-const {mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
-const userSchema = new mongoose.userSchema(
+const userSchema = new mongoose.Schema(
     {
         fullname:{
             type:String,
@@ -27,7 +27,7 @@ const userSchema = new mongoose.userSchema(
     },
     {
         timestamps:true,
-    },
+    }
 
 );
 
