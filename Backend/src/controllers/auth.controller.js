@@ -151,5 +151,49 @@ const logoutUser = async(req, res) => {
     }
 };
 
+const forgotPassword = async (req,res) => {
+  
+  try {
+    const { email } = req.body;
 
-module.exports = {registerUser, loginUser, logoutUser, verifyEmail,};
+    const user = await User.findOne({
+      email,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    user.resetPasswordToken = resetToken;
+
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+
+    await user.save();   
+    
+    const resetURL =
+      `http://localhost:5000/api/auth/reset-password/${resetToken}`;
+
+    await sendEmail(
+      email,
+      "Reset Password",
+      `Reset your password using this link: ${resetURL}`
+    );   
+
+    res.status(200).json({
+    resetToken,
+    });
+
+    
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+
+module.exports = {registerUser, loginUser, logoutUser, verifyEmail, forgotPassword, };
