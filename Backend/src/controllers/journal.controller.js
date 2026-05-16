@@ -131,10 +131,54 @@ const deleteEntry = async (req, res) => {
   }
 };
 
+const searchEntries = async (req, res) => {
+  try {
+    const { topic, difficulty, startDate, endDate } = req.query;
+
+    const query = {
+      user: req.user._id,
+    };
+
+    if (topic) {
+      query.topicName = {
+        $regex: topic,
+        $options: "i",
+      };
+    }
+
+    if (difficulty) {
+      query.difficultyLevel = difficulty;
+    }
+
+    if (startDate || endDate) {
+      query.createdAt = {};
+
+      if (startDate) {
+        query.createdAt.$gte = new Date(startDate);
+      }
+
+      if (endDate) {
+        query.createdAt.$lte = new Date(endDate);
+      }
+    }
+
+    const entries = await LearningEntry.find(query)
+      .populate("user", "fullname email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(entries);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   addLearningEntry,
   getAllEntries,
   getSingleEntry,
   editEntry,
   deleteEntry,
+  searchEntries,
 };

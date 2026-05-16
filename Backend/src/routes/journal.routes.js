@@ -10,10 +10,12 @@ const {
   getSingleEntry,
   editEntry,
   deleteEntry,
+  searchEntries,
 } = require("../controllers/journal.controller");
 
 router.post("/add", authMiddleware, addLearningEntry);
 router.get("/all", authMiddleware, getAllEntries);
+router.get("/search/filter", authMiddleware, searchEntries);
 router.get("/:id", authMiddleware, getSingleEntry);
 router.put("/edit/:id", authMiddleware, editEntry);
 router.delete("/delete/:id", authMiddleware, deleteEntry);
