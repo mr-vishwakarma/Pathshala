@@ -27,6 +27,7 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/journal", journalRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(errorMiddleware);
 app.get("/", (req, res) => {
   res.send("Backend Running");
