@@ -7,6 +7,9 @@ const authRoutes = require("./routes/auth.routes");
 const app = express();
 const path = require("path");
 
+
+const journalRoutes = require( "./routes/journal.routes");
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -20,6 +23,8 @@ app.set(
 );
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/journal", journalRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend Running");
