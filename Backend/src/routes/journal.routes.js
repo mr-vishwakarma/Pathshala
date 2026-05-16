@@ -9,11 +9,13 @@ const {
   getAllEntries,
   getSingleEntry,
   editEntry,
+  deleteEntry,
 } = require("../controllers/journal.controller");
 
 router.post("/add", authMiddleware, addLearningEntry);
 router.get("/all", authMiddleware, getAllEntries);
 router.get("/:id", authMiddleware, getSingleEntry);
 router.put("/edit/:id", authMiddleware, editEntry);
+router.delete("/delete/:id", authMiddleware, deleteEntry);
 
 module.exports = router;

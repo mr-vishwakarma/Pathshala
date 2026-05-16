@@ -4,6 +4,11 @@ const addLearningEntry = async (req, res) => {
   try {
     const { topicName, description, studyDuration, difficultyLevel } = req.body;
 
+    if (!topicName || !description || !studyDuration || !difficultyLevel) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    }
     const entry = await LearningEntry.create({
       topicName,
       description,
@@ -98,4 +103,38 @@ const editEntry = async (req, res) => {
   }
 };
 
-module.exports = { addLearningEntry, getAllEntries, getSingleEntry, editEntry };
+const deleteEntry = async (req, res) => {
+  try {
+    const entry = await LearningEntry.findById(req.params.id);
+
+    if (!entry) {
+      return res.status(404).json({
+        message: "Entry not found",
+      });
+    }
+
+    if (entry.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Not authorized to delete",
+      });
+    }
+
+    await entry.deleteOne();
+
+    res.status(200).json({
+      message: "Entry deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+module.exports = {
+  addLearningEntry,
+  getAllEntries,
+  getSingleEntry,
+  editEntry,
+  deleteEntry,
+};
