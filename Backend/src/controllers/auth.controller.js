@@ -194,6 +194,47 @@ const forgotPassword = async (req,res) => {
     });
   }
 };
+const resetPassword = async (req,res ) => {
 
+  try {
+    const { token } = req.params;
 
-module.exports = {registerUser, loginUser, logoutUser, verifyEmail, forgotPassword, };
+    const { password } = req.body;
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+
+      resetPasswordExpires: {
+        $gt: Date.now(),
+      },
+    });
+
+    if (!user) {
+      return res.send(
+        "Invalid or Expired Token"
+      );
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+
+    user.resetPasswordToken = undefined;
+
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.send(
+      "Password Reset Successful"
+    );
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+module.exports = {registerUser, loginUser, logoutUser, verifyEmail, forgotPassword, resetPassword,};

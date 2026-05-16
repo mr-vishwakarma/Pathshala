@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const {registerUser, loginUser, logoutUser, verifyEmail, forgotPassword}= require("../controllers/auth.controller");
+const {registerUser, loginUser, logoutUser, verifyEmail, forgotPassword, resetPassword,}= require("../controllers/auth.controller");
 const authMiddleware = require("../middleware/auth.middleware");
 
 
@@ -19,6 +19,16 @@ router.get("/profile", authMiddleware,
 router.get("/logout", logoutUser);
 router.get("/verify-email/:token", verifyEmail);
 router.post("/forgot-password",forgotPassword);
+
+router.get("/reset-password/:token",
+  (req, res) => {
+    res.render("resetPassword", {
+      token: req.params.token,
+    });
+  }
+);
+
+router.post("/reset-password/:token", resetPassword);
 
 
 module.exports = router;

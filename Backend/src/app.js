@@ -5,11 +5,19 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/auth.routes");
 const app = express();
+const path = require("path");
 
 app.use(cors());
 app.use(express.json());
-app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.set("view engine", "ejs");
+
+app.set(
+  "views",
+  path.join(__dirname, "views")
+);
 
 app.use("/api/auth", authRoutes);
 
