@@ -31,7 +31,9 @@ const addLearningEntry = async (req, res) => {
 
 const getAllEntries = async (req, res) => {
   try {
-    const entries = await LearningEntry.find()
+    const entries = await LearningEntry.find({
+      user: req.user._id,
+    })
 
       .populate("user", "fullname email")
 
@@ -135,6 +137,12 @@ const searchEntries = async (req, res) => {
   try {
     const { topic, difficulty, startDate, endDate } = req.query;
 
+    const page = Math.max(Number(req.query.page) || 1, 1);
+
+    const limit = Math.min(Math.max(Number(req.query.limit) || 6, 1), 50);
+
+    const skip = (page - 1) * limit;
+
     const query = {
       user: req.user._id,
     };
@@ -162,11 +170,24 @@ const searchEntries = async (req, res) => {
       }
     }
 
-    const entries = await LearningEntry.find(query)
-      .populate("user", "fullname email")
-      .sort({ createdAt: -1 });
+    const [entries, totalEntries] = await Promise.all([
+      LearningEntry.find(query)
+        .populate("user", "fullname email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      LearningEntry.countDocuments(query),
+    ]);
 
-    res.status(200).json(entries);
+    res.status(200).json({
+      entries,
+      pagination: {
+        page,
+        limit,
+        totalEntries,
+        totalPages: Math.ceil(totalEntries / limit) || 1,
+      },
+    });
   } catch (error) {
     res.status(500).json({
       message: error.message,
