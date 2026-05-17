@@ -3,11 +3,18 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
-const { send } = require('process');
+
+const getBackendURL = () => process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 4000}`;
 
 const registerUser = async(req, res) => {
     try {
         const {fullname, email, password} = req.body; 
+
+        if (!fullname || !email || !password) {
+            return res.status(400).json({
+                message: "Full name, email, and password are required",
+            });
+        }
 
         const existingUser = await User.findOne({ 
             email,
@@ -24,13 +31,13 @@ const registerUser = async(req, res) => {
         const verificationToken = crypto.randomBytes(32).toString("hex");
 
 
-        const newUser = await User.create({
+        await User.create({
             fullname,
             email,
             password: hashedPassword,
             verificationToken,
         });
-        const verificationURL = `http://localhost:5000/api/auth/verify-email/${verificationToken}`;
+        const verificationURL = `${getBackendURL()}/api/auth/verify-email/${verificationToken}`;
                                 
 
         await sendEmail(
@@ -39,7 +46,7 @@ const registerUser = async(req, res) => {
           `"Click this link to verify your email:${verificationURL}"`
         )
         res.status(201).json({
-            message:"User created Sucessfully",
+            message:"User registered successfully. Please verify your email before logging in.",
         })
 
 
@@ -73,7 +80,7 @@ const verifyEmail = async (req, res) => {
     await user.save();
 
     res.status(200).json({
-      message: "Email Verified Successfully",
+      message: "Email verified successfully. You can now log in.",
     });
 
   } catch (error) {
@@ -121,7 +128,10 @@ const loginUser = async (req, res) => {
       }
     );
 
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+    });
 
     res.status(200).json({
       message: "Login successful",
@@ -175,7 +185,7 @@ const forgotPassword = async (req,res) => {
     await user.save();   
     
     const resetURL =
-      `http://localhost:5000/api/auth/reset-password/${resetToken}`;
+      `${getBackendURL()}/api/auth/reset-password/${resetToken}`;
 
     await sendEmail(
       email,
