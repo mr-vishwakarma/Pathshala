@@ -40,7 +40,7 @@ const LoginPage = () => {
       toast.success(response.data.message);
 
       if (isLogin) {
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       }
 
       setFormData({
@@ -109,7 +109,7 @@ const LoginPage = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="name@university.edu"
+            placeholder="enter your email"
             className="w-full border border-gray-300 rounded-md px-4 py-3 outline-none focus:border-blue-500"
           />
         </div>
@@ -126,7 +126,7 @@ const LoginPage = () => {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            placeholder="Enter password"
+            placeholder="Enter your password"
             className="w-full border border-gray-300 rounded-md px-4 py-3 outline-none focus:border-blue-500"
           />
         </div>

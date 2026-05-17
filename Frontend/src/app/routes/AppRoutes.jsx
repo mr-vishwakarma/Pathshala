@@ -10,13 +10,18 @@ import HomePage from "../../features/auth/UI/pages/HomePage";
 import JournalPage from "../../features/auth/UI/pages/JournalPage";
 
 import ProtectedRoute from "../../shared/components/ProtectedRoute";
+import PublicRoute from "../../shared/components/PublicRoute";
 
 const AppRoutes = () => {
   let router = createBrowserRouter([
     {
       path: "/",
 
-      element: <AuthLayout />,
+      element: (
+        <PublicRoute>
+          <AuthLayout />
+        </PublicRoute>
+      ),
 
       children: [
         {
