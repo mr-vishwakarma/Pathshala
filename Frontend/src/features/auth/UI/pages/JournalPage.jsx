@@ -51,25 +51,15 @@ const normalizeEntriesResponse = (data, fallbackPage = 1) => {
 
 const JournalPage = () => {
   let [formData, setFormData] = useState(defaultFormData);
-
   let [editFormData, setEditFormData] = useState(defaultFormData);
-
   let [entries, setEntries] = useState([]);
-
   let [loading, setLoading] = useState(false);
-
   let [listLoading, setListLoading] = useState(false);
-
   let [entryToEdit, setEntryToEdit] = useState(null);
-
   let [entryToDelete, setEntryToDelete] = useState(null);
-
   let [searchText, setSearchText] = useState("");
-
   let [selectedDifficulty, setSelectedDifficulty] = useState("");
-
   let [currentPage, setCurrentPage] = useState(1);
-
   let [pagination, setPagination] = useState(defaultPagination);
 
   let buildQuery = useCallback(
@@ -92,9 +82,7 @@ const JournalPage = () => {
   let loadEntries = useCallback(
     async (page = currentPage) => {
       let response = await api.get(buildQuery(page));
-
       let normalizedData = normalizeEntriesResponse(response.data, page);
-
       setEntries(normalizedData.entries);
       setPagination(normalizedData.pagination);
     },
@@ -102,29 +90,19 @@ const JournalPage = () => {
   );
 
   let handleFormChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   let handleEditFormChange = (e) => {
-    setEditFormData({
-      ...editFormData,
-      [e.target.name]: e.target.value,
-    });
+    setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
   };
 
   let handleAddSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
-
       let response = await api.post("/journal/add", formData);
-
       toast.success(response.data.message);
-
       setFormData(defaultFormData);
       setCurrentPage(1);
       await loadEntries(1);
@@ -152,21 +130,12 @@ const JournalPage = () => {
 
   let handleEditSubmit = async (e) => {
     e.preventDefault();
-
-    if (!entryToEdit) {
-      return;
-    }
+    if (!entryToEdit) return;
 
     try {
       setLoading(true);
-
-      let response = await api.put(
-        `/journal/edit/${entryToEdit._id}`,
-        editFormData,
-      );
-
+      let response = await api.put(`/journal/edit/${entryToEdit._id}`, editFormData);
       toast.success(response.data.message);
-
       closeEditModal();
       await loadEntries();
     } catch (error) {
@@ -177,15 +146,11 @@ const JournalPage = () => {
   };
 
   let handleDelete = async () => {
-    if (!entryToDelete) {
-      return;
-    }
+    if (!entryToDelete) return;
 
     try {
       let response = await api.delete(`/journal/delete/${entryToDelete._id}`);
-
       toast.success(response.data.message);
-
       setEntryToDelete(null);
       await loadEntries();
     } catch (error) {
@@ -217,24 +182,16 @@ const JournalPage = () => {
         .get(buildQuery())
         .then((response) => {
           if (isMounted) {
-            let normalizedData = normalizeEntriesResponse(
-              response.data,
-              currentPage,
-            );
-
+            let normalizedData = normalizeEntriesResponse(response.data, currentPage);
             setEntries(normalizedData.entries);
             setPagination(normalizedData.pagination);
           }
         })
         .catch((error) => {
-          toast.error(
-            error.response?.data?.message || "Failed to load entries",
-          );
+          toast.error(error.response?.data?.message || "Failed to load entries");
         })
         .finally(() => {
-          if (isMounted) {
-            setListLoading(false);
-          }
+          if (isMounted) setListLoading(false);
         });
     }, 400);
 
@@ -245,18 +202,20 @@ const JournalPage = () => {
   }, [buildQuery, currentPage]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold text-blue-600">Learning Journal</h1>
-
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
+        <h1 className="text-3xl font-bold" style={{ color: "var(--purple)" }}>
+          Learning Journal
+        </h1>
+        <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           Track your learning journey.
         </p>
       </div>
 
-      <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-slate-900">
-        <h2 className="mb-6 text-2xl font-bold">Add Journal Entry</h2>
-
+      <div className="card p-6">
+        <h2 className="mb-5 text-xl font-bold" style={{ color: "var(--text-primary)" }}>
+          Add Journal Entry
+        </h2>
         <JournalForm
           formData={formData}
           loading={loading}
@@ -286,11 +245,7 @@ const JournalPage = () => {
         onPageChange={handlePageChange}
       />
 
-      <Modal
-        isOpen={Boolean(entryToEdit)}
-        onClose={closeEditModal}
-        title="Edit Journal Entry"
-      >
+      <Modal isOpen={Boolean(entryToEdit)} onClose={closeEditModal} title="Edit Journal Entry">
         <JournalForm
           formData={editFormData}
           loading={loading}
@@ -306,24 +261,21 @@ const JournalPage = () => {
         onClose={() => setEntryToDelete(null)}
         title="Delete Journal Entry"
       >
-        <p className="mb-6 text-slate-600 dark:text-slate-300">
-          Are you sure you want to delete "{entryToDelete?.topicName}"?
+        <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
+          Are you sure you want to delete &quot;{entryToDelete?.topicName}&quot;?
         </p>
 
         <div className="flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={() => setEntryToDelete(null)}
-            className="rounded-xl px-5 py-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="btn rounded-xl px-5 py-2"
+            style={{ color: "var(--text-secondary)" }}
           >
             Cancel
           </button>
 
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="rounded-xl bg-red-600 px-5 py-2 text-white hover:bg-red-700"
-          >
+          <button type="button" onClick={handleDelete} className="btn btn-coral px-5 py-2">
             Delete
           </button>
         </div>

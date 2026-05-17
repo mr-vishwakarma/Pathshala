@@ -26,7 +26,6 @@ const LoginPage = () => {
   let handleChange = (e) => {
     setFormData({
       ...formData,
-
       [e.target.name]: e.target.value,
     });
   };
@@ -66,36 +65,58 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="w-full max-w-md bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-      <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
-        Welcome back
+    <div className="card w-full max-w-md p-8">
+      <h1
+        className="text-3xl font-extrabold text-center mb-1"
+        style={{ color: "var(--purple)" }}
+      >
+        Pathshala
       </h1>
 
-      <div className="grid grid-cols-2 bg-gray-100 rounded-md p-1 mb-6">
+      <p
+        className="text-center text-sm mb-6"
+        style={{ color: "var(--text-secondary)" }}
+      >
+        Your learning journal
+      </p>
+
+      <div
+        className="grid grid-cols-2 rounded-lg p-1 mb-6"
+        style={{ background: "var(--bg-card-hover)", border: "1px solid var(--border-color)" }}
+      >
         <button
           onClick={() => setIsLogin(true)}
-          className={`py-2 rounded-md font-medium transition-all duration-200 ${
-            isLogin ? "bg-white shadow-sm" : "text-gray-500"
-          }`}
+          className="py-2 rounded-md font-semibold text-sm transition-all duration-200"
+          style={{
+            background: isLogin ? "var(--bg-card)" : "transparent",
+            color: isLogin ? "var(--blue)" : "var(--text-secondary)",
+            boxShadow: isLogin ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+          }}
         >
           Login
         </button>
 
         <button
           onClick={() => setIsLogin(false)}
-          className={`py-2 rounded-md font-medium transition-all duration-200 ${
-            !isLogin ? "bg-white shadow-sm" : "text-gray-500"
-          }`}
+          className="py-2 rounded-md font-semibold text-sm transition-all duration-200"
+          style={{
+            background: !isLogin ? "var(--bg-card)" : "transparent",
+            color: !isLogin ? "var(--blue)" : "var(--text-secondary)",
+            boxShadow: !isLogin ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+          }}
         >
           Register
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {!isLogin && (
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              Fullname
+            <label
+              className="block text-sm font-medium mb-1.5"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Full Name
             </label>
 
             <input
@@ -103,15 +124,18 @@ const LoginPage = () => {
               name="fullname"
               value={formData.fullname}
               onChange={handleChange}
-              placeholder="Enter fullname"
-              className="w-full border border-gray-300 rounded-md px-4 py-3 outline-none focus:border-blue-500"
+              placeholder="Enter full name"
+              className="input-field"
             />
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-2">
-            University Email
+          <label
+            className="block text-sm font-medium mb-1.5"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Email
           </label>
 
           <input
@@ -119,19 +143,26 @@ const LoginPage = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="name@university.edu"
-            className="w-full border border-gray-300 rounded-md px-4 py-3 outline-none focus:border-blue-500"
+            placeholder="Enter email"
+            className="input-field"
           />
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-gray-600">
+          <div className="flex items-center justify-between mb-1.5">
+            <label
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
               Password
             </label>
 
             {isLogin && (
-              <Link to="/forgot-password" className="text-sm text-blue-600">
+              <Link
+                to="/forgot-password"
+                className="text-sm font-medium"
+                style={{ color: "var(--blue)" }}
+              >
                 Forgot Password?
               </Link>
             )}
@@ -143,15 +174,11 @@ const LoginPage = () => {
             value={formData.password}
             onChange={handleChange}
             placeholder="Enter password"
-            className="w-full border border-gray-300 rounded-md px-4 py-3 outline-none focus:border-blue-500"
+            className="input-field"
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-900 hover:bg-blue-800 text-white py-3 rounded-md font-semibold transition-all duration-200"
-        >
+        <button type="submit" disabled={loading} className="btn btn-blue w-full py-3">
           {loading
             ? "Please wait..."
             : isLogin

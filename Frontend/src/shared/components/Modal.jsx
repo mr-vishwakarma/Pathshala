@@ -5,16 +5,19 @@ const Modal = ({ children, isOpen, onClose, title }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+      <div className="card w-full max-w-2xl p-6 shadow-xl">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+          <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
             {title}
           </h2>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-3 py-1 text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="rounded-lg px-3 py-1 text-sm font-medium transition-colors duration-200"
+            style={{ color: "var(--text-secondary)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--border-color)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             Close
           </button>

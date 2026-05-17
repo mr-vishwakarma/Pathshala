@@ -1,7 +1,7 @@
 const uploadToImageKit = require("../utils/uploadToImageKit");
 
 const User = require("../models/user.model");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const getProfile = async (req, res) => {
   try {

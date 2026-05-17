@@ -7,24 +7,27 @@ const JournalFilters = ({
   onSearchChange,
 }) => {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-slate-900">
+    <div className="card p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="relative w-full lg:max-w-md">
-          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+          <FaSearch
+            className="absolute left-4 top-1/2 -translate-y-1/2"
+            style={{ color: "var(--text-secondary)" }}
+          />
 
           <input
             type="text"
             placeholder="Search topic..."
             value={searchText}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 py-3 pl-12 pr-4 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            className="input-field pl-11"
           />
         </div>
 
         <select
           value={selectedDifficulty}
           onChange={(e) => onDifficultyChange(e.target.value)}
-          className="rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          className="input-field w-auto min-w-[160px]"
         >
           <option value="">All Difficulties</option>
           <option value="Easy">Easy</option>

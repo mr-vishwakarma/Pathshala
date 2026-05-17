@@ -2,10 +2,139 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-html {
-  background: #f5f7fb;
+:root {
+  --coral: #FF595E;
+  --lime: #8AC926;
+  --amber: #FFCA3A;
+  --blue: #1982C4;
+  --purple: #6A4C93;
+
+  --cream-50: #FFFDF9;
+  --cream-100: #FFF8F0;
+  --cream-200: #FFF1E0;
+  --cream-300: #FFE8CC;
+
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  --bg-main: var(--cream-100);
+  --bg-card: #FFFFFF;
+  --bg-card-hover: var(--cream-50);
+  --border-color: #e8e0d4;
 }
 
-html.dark {
-  background: #0f172a;
+.dark {
+  --text-primary: #FFFFFF;
+  --text-secondary: #aaaaaa;
+  --bg-main: #111111;
+  --bg-card: #1a1a1a;
+  --bg-card-hover: #222222;
+  --border-color: #2a2a2a;
+}
+
+* {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+html {
+  background: var(--bg-main);
+  color: var(--text-primary);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Utility */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+}
+
+.input-field {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(25, 130, 196, 0.15);
+}
+
+.input-field::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  border: none;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-blue {
+  background: var(--blue);
+  color: #fff;
+}
+
+.btn-lime {
+  background: var(--lime);
+  color: #111;
+}
+
+.btn-coral {
+  background: var(--coral);
+  color: #fff;
+}
+
+.btn-purple {
+  background: var(--purple);
+  color: #fff;
+}
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-easy {
+  background: rgba(25, 130, 196, 0.15);
+  color: var(--blue);
+}
+
+.badge-medium {
+  background: rgba(255, 202, 58, 0.2);
+  color: #b8930a;
+}
+
+.dark .badge-medium {
+  color: var(--amber);
+}
+
+.badge-hard {
+  background: rgba(255, 89, 94, 0.15);
+  color: var(--coral);
 }

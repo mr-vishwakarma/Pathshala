@@ -7,14 +7,14 @@ const JournalForm = ({
   submitLabel,
 }) => {
   return (
-    <form className="space-y-5" onSubmit={onSubmit}>
+    <form className="space-y-4" onSubmit={onSubmit}>
       <input
         type="text"
         name="topicName"
         value={formData.topicName}
         onChange={onChange}
         placeholder="Enter topic name"
-        className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="input-field"
       />
 
       <textarea
@@ -23,7 +23,7 @@ const JournalForm = ({
         onChange={onChange}
         placeholder="What did you learn?"
         rows="4"
-        className="w-full resize-none rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="input-field resize-none"
       />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -32,15 +32,15 @@ const JournalForm = ({
           name="studyDuration"
           value={formData.studyDuration}
           onChange={onChange}
-          placeholder="Study duration"
-          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          placeholder="Study duration (hours)"
+          className="input-field"
         />
 
         <select
           name="difficultyLevel"
           value={formData.difficultyLevel}
           onChange={onChange}
-          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          className="input-field"
         >
           <option value="Easy">Easy</option>
           <option value="Medium">Medium</option>
@@ -49,11 +49,7 @@ const JournalForm = ({
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-xl bg-blue-600 px-6 py-3 text-white transition-all duration-200 hover:bg-blue-700 disabled:opacity-70"
-        >
+        <button type="submit" disabled={loading} className="btn btn-blue">
           {loading ? "Saving..." : submitLabel}
         </button>
 
@@ -61,7 +57,8 @@ const JournalForm = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl px-6 py-3 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="btn"
+            style={{ color: "var(--text-secondary)" }}
           >
             Cancel
           </button>

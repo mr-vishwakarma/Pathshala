@@ -30,10 +30,18 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="w-full max-w-md bg-white rounded-xl shadow-sm p-8">
-      <h1 className="text-3xl font-bold text-center mb-3">Forgot Password</h1>
+    <div className="card w-full max-w-md p-8">
+      <h1
+        className="text-3xl font-bold text-center mb-2"
+        style={{ color: "var(--text-primary)" }}
+      >
+        Forgot Password
+      </h1>
 
-      <p className="text-gray-500 text-center mb-8">
+      <p
+        className="text-center mb-6 text-sm"
+        style={{ color: "var(--text-secondary)" }}
+      >
         Enter your registered email.
       </p>
 
@@ -43,14 +51,10 @@ const ForgotPasswordPage = () => {
           placeholder="Enter email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none"
+          className="input-field"
         />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl"
-        >
+        <button type="submit" disabled={loading} className="btn btn-blue w-full py-3">
           {loading ? "Sending..." : "Send Reset Link"}
         </button>
       </form>

@@ -1,10 +1,19 @@
 import { FaBookOpen, FaClock, FaEdit, FaTrash } from "react-icons/fa";
 
+const difficultyBadge = (level) => {
+  if (level === "Easy") return "badge badge-easy";
+  if (level === "Medium") return "badge badge-medium";
+  return "badge badge-hard";
+};
+
 const JournalEntryCard = ({ entry, onDelete, onEdit }) => {
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+    <div className="card p-5 transition-shadow duration-200 hover:shadow-md">
       <div className="mb-4 flex items-start justify-between">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-300">
+        <div
+          className="flex h-11 w-11 items-center justify-center rounded-lg"
+          style={{ background: "rgba(106, 76, 147, 0.15)", color: "var(--purple)" }}
+        >
           <FaBookOpen />
         </div>
 
@@ -12,7 +21,10 @@ const JournalEntryCard = ({ entry, onDelete, onEdit }) => {
           <button
             type="button"
             onClick={() => onEdit(entry)}
-            className="text-slate-500 hover:text-blue-600 dark:text-slate-400"
+            className="transition-colors duration-200"
+            style={{ color: "var(--text-secondary)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--blue)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
           >
             <FaEdit />
           </button>
@@ -20,29 +32,34 @@ const JournalEntryCard = ({ entry, onDelete, onEdit }) => {
           <button
             type="button"
             onClick={() => onDelete(entry)}
-            className="text-slate-500 hover:text-red-500 dark:text-slate-400"
+            className="transition-colors duration-200"
+            style={{ color: "var(--text-secondary)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--coral)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
           >
             <FaTrash />
           </button>
         </div>
       </div>
 
-      <h3 className="mb-2 text-xl font-bold text-slate-800 dark:text-slate-100">
+      <h3 className="mb-1.5 text-lg font-bold" style={{ color: "var(--text-primary)" }}>
         {entry.topicName}
       </h3>
 
-      <p className="mb-5 line-clamp-3 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+      <p
+        className="mb-4 line-clamp-3 text-sm leading-relaxed"
+        style={{ color: "var(--text-secondary)" }}
+      >
         {entry.description}
       </p>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-secondary)" }}>
           <FaClock />
-
           <span>{entry.studyDuration}h</span>
         </div>
 
-        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-600 dark:bg-blue-950 dark:text-blue-300">
+        <span className={difficultyBadge(entry.difficultyLevel)}>
           {entry.difficultyLevel}
         </span>
       </div>

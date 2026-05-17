@@ -9,12 +9,13 @@ const JournalPagination = ({ pagination, onPageChange }) => {
         type="button"
         disabled={pagination.page === 1}
         onClick={() => onPageChange(pagination.page - 1)}
-        className="rounded-xl bg-white px-4 py-2 text-slate-700 shadow-sm disabled:opacity-50 dark:bg-slate-900 dark:text-slate-100"
+        className="btn card px-4 py-2 text-sm disabled:opacity-40"
+        style={{ color: "var(--text-primary)" }}
       >
         Previous
       </button>
 
-      <span className="text-sm text-slate-500 dark:text-slate-400">
+      <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
         Page {pagination.page} of {pagination.totalPages}
       </span>
 
@@ -22,7 +23,8 @@ const JournalPagination = ({ pagination, onPageChange }) => {
         type="button"
         disabled={pagination.page === pagination.totalPages}
         onClick={() => onPageChange(pagination.page + 1)}
-        className="rounded-xl bg-white px-4 py-2 text-slate-700 shadow-sm disabled:opacity-50 dark:bg-slate-900 dark:text-slate-100"
+        className="btn card px-4 py-2 text-sm disabled:opacity-40"
+        style={{ color: "var(--text-primary)" }}
       >
         Next
       </button>
