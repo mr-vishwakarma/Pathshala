@@ -1,47 +1,148 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+
+import { useNavigate } from "react-router-dom";
+
+import toast from "react-hot-toast";
+
+import api from "../../../../shared/services/api";
 
 const LoginPage = () => {
-  return (
-    <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-      <h1 className="text-3xl font-bold mb-6">Login</h1>
+  let navigate = useNavigate();
 
-      <form className="space-y-4">
+  let [isLogin, setIsLogin] = useState(true);
+
+  let [loading, setLoading] = useState(false);
+
+  let [formData, setFormData] = useState({
+    fullname: "",
+    email: "",
+    password: "",
+  });
+
+  let handleChange = (e) => {
+    setFormData({
+      ...formData,
+
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  let handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+
+      let endpoint = isLogin ? "/auth/login" : "/auth/register";
+
+      let response = await api.post(endpoint, formData);
+
+      toast.success(response.data.message);
+
+      if (isLogin) {
+        navigate("/dashboard");
+      }
+
+      setFormData({
+        fullname: "",
+        email: "",
+        password: "",
+      });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-md bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+      <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
+        Welcome back
+      </h1>
+
+      <div className="grid grid-cols-2 bg-gray-100 rounded-md p-1 mb-6">
+        <button
+          onClick={() => setIsLogin(true)}
+          className={`py-2 rounded-md font-medium transition-all duration-200 ${
+            isLogin ? "bg-white shadow-sm" : "text-gray-500"
+          }`}
+        >
+          Login
+        </button>
+
+        <button
+          onClick={() => setIsLogin(false)}
+          className={`py-2 rounded-md font-medium transition-all duration-200 ${
+            !isLogin ? "bg-white shadow-sm" : "text-gray-500"
+          }`}
+        >
+          Register
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {!isLogin && (
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-2">
+              Fullname
+            </label>
+
+            <input
+              type="text"
+              name="fullname"
+              value={formData.fullname}
+              onChange={handleChange}
+              placeholder="Enter fullname"
+              className="w-full border border-gray-300 rounded-md px-4 py-3 outline-none focus:border-blue-500"
+            />
+          </div>
+        )}
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
+          <label className="block text-sm font-medium text-gray-600 mb-2">
+            University Email
           </label>
+
           <input
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
             type="email"
-            placeholder="you@example.com"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="name@university.edu"
+            className="w-full border border-gray-300 rounded-md px-4 py-3 outline-none focus:border-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Password
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-gray-600">
+              Password
+            </label>
+          </div>
+
           <input
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-500"
             type="password"
-            placeholder="Enter your password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Enter password"
+            className="w-full border border-gray-300 rounded-md px-4 py-3 outline-none focus:border-blue-500"
           />
         </div>
 
         <button
-          className="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
           type="submit"
+          disabled={loading}
+          className="w-full bg-blue-900 hover:bg-blue-800 text-white py-3 rounded-md font-semibold transition-all duration-200"
         >
-          Login
+          {loading
+            ? "Please wait..."
+            : isLogin
+              ? "Sign In to Journal"
+              : "Create Account"}
         </button>
       </form>
-
-      <p className="mt-4 text-sm text-gray-600">
-        New here?{" "}
-        <Link className="font-medium text-blue-600" to="/register">
-          Create an account
-        </Link>
-      </p>
     </div>
   );
 };

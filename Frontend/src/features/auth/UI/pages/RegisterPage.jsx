@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import api from "../../../../shared/services/api";
 import toast from "react-hot-toast";
 
@@ -10,26 +10,21 @@ const RegisterPage = () => {
   });
 
   let handleChange = (e) => {
-    setFormData({
-      ...formData,
-
-      [e.target.name]: e.target.value,
+    setFormData({...formData, [e.target.name]: e.target.value,
     });
   };
 
-  let handleSubmit = async (e) => {
-    e.preventDefault();
+  let handleSubmit = async (e) => { e.preventDefault();
 
     try {
       let response = await api.post("/auth/register", formData);
 
       toast.success(response.data.message);
-
-      console.log(response.data);
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Registration failed");
     }
   };
+  
   return (
     <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
       <h1 className="text-3xl font-bold mb-6 text-center">Register</h1>
