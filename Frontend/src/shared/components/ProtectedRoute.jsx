@@ -1,43 +1,19 @@
-import { useEffect, useState } from "react";
-
 import { Navigate } from "react-router-dom";
-import api from "../services/api";
 
-const ProtectedRoute = ({
-  children,
-}) => {
-  const [status, setStatus] = useState("checking");
+import { useAuth } from "../context/AuthContext";
 
-  useEffect(() => {
-    let isMounted = true;
+const ProtectedRoute = ({ children }) => {
+  let { user, loading } = useAuth();
 
-    api
-      .get("/auth/profile")
-      .then(() => {
-        if (isMounted) {
-          setStatus("authenticated");
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setStatus("unauthenticated");
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  if (status === "checking") {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-600">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-semibold">Loading...</h1>
       </div>
     );
   }
 
-  return status === "authenticated" ? children : <Navigate to="/" replace />;
+  return user ? children : <Navigate to="/" replace />;
 };
 
 export default ProtectedRoute;

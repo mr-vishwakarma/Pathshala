@@ -1,13 +1,17 @@
 import { useState } from "react";
 
-import { useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import toast from "react-hot-toast";
 
 import api from "../../../../shared/services/api";
 
+import { useAuth } from "../../../../shared/context/AuthContext";
+
 const LoginPage = () => {
   let navigate = useNavigate();
+
+  let { user, fetchCurrentUser } = useAuth();
 
   let [isLogin, setIsLogin] = useState(true);
 
@@ -40,6 +44,8 @@ const LoginPage = () => {
       toast.success(response.data.message);
 
       if (isLogin) {
+        await fetchCurrentUser();
+
         navigate("/dashboard", { replace: true });
       }
 
@@ -54,6 +60,10 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="w-full max-w-md bg-white rounded-lg border border-gray-200 shadow-sm p-6">
@@ -109,16 +119,22 @@ const LoginPage = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="enter your email"
+            placeholder="name@university.edu"
             className="w-full border border-gray-300 rounded-md px-4 py-3 outline-none focus:border-blue-500"
           />
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-gray-600">
+            <label className="block text-sm font-medium text-gray-600">
               Password
             </label>
+
+            {isLogin && (
+              <Link to="/forgot-password" className="text-sm text-blue-600">
+                Forgot Password?
+              </Link>
+            )}
           </div>
 
           <input
@@ -126,7 +142,7 @@ const LoginPage = () => {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            placeholder="Enter your password"
+            placeholder="Enter password"
             className="w-full border border-gray-300 rounded-md px-4 py-3 outline-none focus:border-blue-500"
           />
         </div>

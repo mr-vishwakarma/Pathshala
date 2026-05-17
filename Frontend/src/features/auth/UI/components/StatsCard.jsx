@@ -4,13 +4,13 @@ const StatsCard = ({
   subtitle,
 }) => {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm">
+    <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900">
 
-      <h3 className="text-gray-500 text-sm mb-2">
+      <h3 className="mb-2 text-sm text-slate-500 dark:text-slate-400">
         {title}
       </h3>
 
-      <h2 className="text-3xl font-bold text-gray-800">
+      <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
         {value}
       </h2>
 
