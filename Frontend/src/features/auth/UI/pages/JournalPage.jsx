@@ -134,7 +134,10 @@ const JournalPage = () => {
 
     try {
       setLoading(true);
-      let response = await api.put(`/journal/edit/${entryToEdit._id}`, editFormData);
+      let response = await api.put(
+        `/journal/edit/${entryToEdit._id}`,
+        editFormData,
+      );
       toast.success(response.data.message);
       closeEditModal();
       await loadEntries();
@@ -182,13 +185,18 @@ const JournalPage = () => {
         .get(buildQuery())
         .then((response) => {
           if (isMounted) {
-            let normalizedData = normalizeEntriesResponse(response.data, currentPage);
+            let normalizedData = normalizeEntriesResponse(
+              response.data,
+              currentPage,
+            );
             setEntries(normalizedData.entries);
             setPagination(normalizedData.pagination);
           }
         })
         .catch((error) => {
-          toast.error(error.response?.data?.message || "Failed to load entries");
+          toast.error(
+            error.response?.data?.message || "Failed to load entries",
+          );
         })
         .finally(() => {
           if (isMounted) setListLoading(false);
@@ -202,18 +210,27 @@ const JournalPage = () => {
   }, [buildQuery, currentPage]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold" style={{ color: "var(--purple)" }}>
+        <h1
+          className="text-2xl md:text-3xl font-bold"
+          style={{ color: "var(--purple)" }}
+        >
           Learning Journal
         </h1>
-        <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
+        <p
+          className="mt-1 text-xs md:text-sm"
+          style={{ color: "var(--text-secondary)" }}
+        >
           Track your learning journey.
         </p>
       </div>
 
-      <div className="card p-6">
-        <h2 className="mb-5 text-xl font-bold" style={{ color: "var(--text-primary)" }}>
+      <div className="card p-4 md:p-6">
+        <h2
+          className="mb-4 md:mb-5 text-lg md:text-xl font-bold"
+          style={{ color: "var(--text-primary)" }}
+        >
           Add Journal Entry
         </h2>
         <JournalForm
@@ -245,7 +262,11 @@ const JournalPage = () => {
         onPageChange={handlePageChange}
       />
 
-      <Modal isOpen={Boolean(entryToEdit)} onClose={closeEditModal} title="Edit Journal Entry">
+      <Modal
+        isOpen={Boolean(entryToEdit)}
+        onClose={closeEditModal}
+        title="Edit Journal Entry"
+      >
         <JournalForm
           formData={editFormData}
           loading={loading}
@@ -261,21 +282,29 @@ const JournalPage = () => {
         onClose={() => setEntryToDelete(null)}
         title="Delete Journal Entry"
       >
-        <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
-          Are you sure you want to delete &quot;{entryToDelete?.topicName}&quot;?
+        <p
+          className="mb-6 text-sm md:text-base"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          Are you sure you want to delete &quot;{entryToDelete?.topicName}
+          &quot;?
         </p>
 
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex items-center justify-end gap-2 md:gap-3">
           <button
             type="button"
             onClick={() => setEntryToDelete(null)}
-            className="btn rounded-xl px-5 py-2"
+            className="btn rounded-xl px-3 md:px-5 py-2 text-sm md:text-base"
             style={{ color: "var(--text-secondary)" }}
           >
             Cancel
           </button>
 
-          <button type="button" onClick={handleDelete} className="btn btn-coral px-5 py-2">
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="btn btn-coral px-3 md:px-5 py-2 text-sm md:text-base"
+          >
             Delete
           </button>
         </div>

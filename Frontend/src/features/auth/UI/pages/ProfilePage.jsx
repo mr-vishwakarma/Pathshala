@@ -78,36 +78,48 @@ const ProfilePage = () => {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold" style={{ color: "var(--purple)" }}>
+        <h1
+          className="text-2xl md:text-3xl font-bold"
+          style={{ color: "var(--purple)" }}
+        >
           My Profile
         </h1>
-        <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
+        <p
+          className="mt-1 text-xs md:text-sm"
+          style={{ color: "var(--text-secondary)" }}
+        >
           Manage your account details.
         </p>
       </div>
 
-      <div className="card max-w-2xl p-8">
-        <div className="flex items-center gap-5 mb-8">
+      <div className="card w-full max-w-2xl p-4 md:p-8 mx-auto">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-5 mb-6 md:mb-8">
           <img
             src={profileData.profilePhoto || "https://via.placeholder.com/150"}
             alt="profile"
-            className="w-24 h-24 rounded-full object-cover"
+            className="w-20 md:w-24 h-20 md:h-24 rounded-full object-cover flex-shrink-0"
             style={{ border: "3px solid var(--purple)" }}
           />
 
-          <div>
-            <h2 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
+          <div className="flex-1 min-w-0">
+            <h2
+              className="text-xl md:text-2xl font-bold truncate"
+              style={{ color: "var(--text-primary)" }}
+            >
               {profileData.fullname}
             </h2>
-            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            <p
+              className="text-xs md:text-sm truncate"
+              style={{ color: "var(--text-secondary)" }}
+            >
               {profileData.email}
             </p>
           </div>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <input
             ref={fileInputRef}
             type="file"
@@ -120,16 +132,16 @@ const ProfilePage = () => {
             type="button"
             onClick={handleUploadClick}
             disabled={imageUploading}
-            className="btn btn-lime"
+            className="btn btn-lime text-sm md:text-base"
           >
             {imageUploading ? "Uploading..." : "Upload Photo"}
           </button>
         </div>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form className="space-y-4 md:space-y-5" onSubmit={handleSubmit}>
           <div>
             <label
-              className="mb-1.5 block text-sm font-medium"
+              className="mb-1.5 block text-xs md:text-sm font-medium"
               style={{ color: "var(--text-secondary)" }}
             >
               Full Name
@@ -139,13 +151,13 @@ const ProfilePage = () => {
               name="fullname"
               value={profileData.fullname}
               onChange={handleChange}
-              className="input-field"
+              className="input-field text-sm md:text-base"
             />
           </div>
 
           <div>
             <label
-              className="mb-1.5 block text-sm font-medium"
+              className="mb-1.5 block text-xs md:text-sm font-medium"
               style={{ color: "var(--text-secondary)" }}
             >
               Email
@@ -155,11 +167,15 @@ const ProfilePage = () => {
               name="email"
               value={profileData.email}
               onChange={handleChange}
-              className="input-field"
+              className="input-field text-sm md:text-base"
             />
           </div>
 
-          <button type="submit" disabled={loading} className="btn btn-blue">
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-blue text-sm md:text-base"
+          >
             {loading ? "Updating..." : "Update Profile"}
           </button>
         </form>

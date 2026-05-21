@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 
 import { FaLayerGroup, FaClock, FaChartLine, FaListUl } from "react-icons/fa";
 
-import DashboardTopbar from "../components/DashboardTopbar";
-
 import StatsCard from "../components/StatsCard";
 
 import api from "../../../../shared/services/api";
@@ -45,20 +43,15 @@ const HomePage = () => {
 
   return (
     <div className="space-y-6">
-      <DashboardTopbar />
-
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
           {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="card h-36 animate-pulse"
-            />
+            <div key={i} className="card h-32 md:h-36 animate-pulse" />
           ))}
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
             <StatsCard
               title="Total Entries"
               value={dashboardData?.totalEntries}
@@ -92,71 +85,100 @@ const HomePage = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-            <div className="card p-6">
+          <div className="grid grid-cols-2 gap-3 md:gap-5">
+            <div className="card p-3 sm:p-5 md:p-6">
               <h2
-                className="text-xl font-bold mb-5"
+                className="text-sm sm:text-lg md:text-xl font-bold mb-3 md:mb-5"
                 style={{ color: "var(--text-primary)" }}
               >
                 Productivity Summary
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-2.5 md:space-y-4">
                 <div className="flex items-center justify-between">
-                  <p style={{ color: "var(--text-secondary)" }}>Total Entries</p>
-                  <span className="font-semibold" style={{ color: "var(--text-primary)" }}>
+                  <p
+                    className="text-xs sm:text-sm md:text-base"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    Total Entries
+                  </p>
+                  <span
+                    className="font-semibold text-xs sm:text-sm md:text-base"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {dashboardData?.totalEntries}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <p style={{ color: "var(--text-secondary)" }}>Total Hours</p>
-                  <span className="font-semibold" style={{ color: "var(--text-primary)" }}>
+                  <p
+                    className="text-xs sm:text-sm md:text-base"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    Total Hours
+                  </p>
+                  <span
+                    className="font-semibold text-xs sm:text-sm md:text-base"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {dashboardData?.totalStudyHours}h
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <p style={{ color: "var(--text-secondary)" }}>Productivity</p>
-                  <span className="font-semibold" style={{ color: "var(--blue)" }}>
+                  <p
+                    className="text-xs sm:text-sm md:text-base"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    Productivity
+                  </p>
+                  <span
+                    className="font-semibold text-xs sm:text-sm md:text-base"
+                    style={{ color: "var(--blue)" }}
+                  >
                     {dashboardData?.productivityLevel}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="card p-6">
+            <div className="card p-3 sm:p-5 md:p-6">
               <h2
-                className="text-xl font-bold mb-5"
+                className="text-sm sm:text-lg md:text-xl font-bold mb-3 md:mb-5"
                 style={{ color: "var(--text-primary)" }}
               >
                 Recent Entries
               </h2>
 
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 {dashboardData?.recentEntries?.map((entry) => (
                   <div
                     key={entry._id}
-                    className="rounded-xl p-4"
+                    className="rounded-lg md:rounded-xl p-2 sm:p-3 md:p-4"
                     style={{
                       border: "1px solid var(--border-color)",
                       background: "var(--bg-card-hover)",
                     }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-1">
                       <h3
-                        className="font-semibold"
+                        className="font-semibold text-xs sm:text-sm md:text-base truncate"
                         style={{ color: "var(--text-primary)" }}
                       >
                         {entry.topicName}
                       </h3>
 
-                      <span className={getDifficultyBadge(entry.difficultyLevel)}>
+                      <span
+                        className={`${getDifficultyBadge(entry.difficultyLevel)} text-[9px] sm:text-xs md:text-sm px-1.5 py-0.5 sm:px-3 sm:py-1`}
+                      >
                         {entry.difficultyLevel}
                       </span>
                     </div>
 
-                    <p className="text-sm mt-1.5" style={{ color: "var(--text-secondary)" }}>
+                    <p
+                      className="text-[10px] sm:text-xs md:text-sm mt-0.5 sm:mt-1"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       {entry.studyDuration}h studied
                     </p>
                   </div>
