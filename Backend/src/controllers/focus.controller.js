@@ -3,7 +3,7 @@ const LearningEntry = require("../models/learningEntry.model");
 
 const startFocusSession = async (req, res) => {
   try {
-    const { topicName, duration } = req.body;
+    const { topicName, duration, category } = req.body;
 
     if (!topicName || !duration) {
       return res.status(400).json({
@@ -14,6 +14,7 @@ const startFocusSession = async (req, res) => {
     const session = await FocusSession.create({
       topicName,
       duration,
+      category: category || "Coding",
       status: "active",
       completed: false,
       user: req.user._id,
@@ -33,7 +34,7 @@ const startFocusSession = async (req, res) => {
 const completeFocusSession = async (req, res) => {
   try {
     const { id } = req.params;
-    const { description, difficultyLevel } = req.body;
+    const { description, difficultyLevel, category } = req.body;
 
     const session = await FocusSession.findById(id);
 
@@ -51,17 +52,22 @@ const completeFocusSession = async (req, res) => {
 
     session.completed = true;
     session.status = "completed";
+    if (category) {
+      session.category = category;
+    }
     await session.save();
 
     // Automatically create a learning entry based on completed focus session
     const studyHours = parseFloat((session.duration / 60).toFixed(2));
     const entryDescription = description || `Successfully completed focus session on ${session.topicName}`;
     const level = difficultyLevel || "Medium";
+    const entryCategory = category || session.category || "Coding";
 
     const entry = await LearningEntry.create({
       topicName: session.topicName,
       description: entryDescription,
       studyDuration: studyHours,
+      category: entryCategory,
       difficultyLevel: level,
       user: req.user._id,
     });

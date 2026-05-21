@@ -2,7 +2,7 @@ const LearningEntry = require("../models/learningEntry.model");
 
 const addLearningEntry = async (req, res) => {
   try {
-    const { topicName, description, studyDuration, difficultyLevel } = req.body;
+    const { topicName, description, studyDuration, difficultyLevel, category } = req.body;
 
     if (!topicName || !description || !studyDuration || !difficultyLevel) {
       return res.status(400).json({
@@ -14,7 +14,7 @@ const addLearningEntry = async (req, res) => {
       description,
       studyDuration,
       difficultyLevel,
-
+      category: category || "Coding",
       user: req.user._id,
     });
 
@@ -135,7 +135,7 @@ const deleteEntry = async (req, res) => {
 
 const searchEntries = async (req, res) => {
   try {
-    const { topic, difficulty, startDate, endDate } = req.query;
+    const { topic, difficulty, category, startDate, endDate } = req.query;
 
     const page = Math.max(Number(req.query.page) || 1, 1);
 
@@ -156,6 +156,10 @@ const searchEntries = async (req, res) => {
 
     if (difficulty) {
       query.difficultyLevel = difficulty;
+    }
+
+    if (category) {
+      query.category = category;
     }
 
     if (startDate || endDate) {

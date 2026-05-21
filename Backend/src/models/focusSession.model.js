@@ -11,6 +11,11 @@ const focusSessionSchema = new mongoose.Schema(
       type: Number, // in minutes
       required: true,
     },
+    category: {
+      type: String,
+      enum: ["Coding", "Research", "Writing", "Review", "Problem Solving", "Admin"],
+      default: "Coding",
+    },
     completed: {
       type: Boolean,
       default: false,

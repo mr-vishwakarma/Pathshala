@@ -17,18 +17,21 @@ const defaultFormData = {
   topicName: "",
   description: "",
   studyDuration: "",
+  category: "Coding",
   difficultyLevel: "Easy",
 };
 
 const HomePage = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
 
   // Fullscreen overlay states
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [overlayEntries, setOverlayEntries] = useState([]);
   const [overlaySearchText, setOverlaySearchText] = useState("");
   const [overlayDifficulty, setOverlayDifficulty] = useState("");
+  const [overlayCategory, setOverlayCategory] = useState("");
   const [overlayPage, setOverlayPage] = useState(1);
   const [overlayPagination, setOverlayPagination] = useState(defaultPagination);
   const [overlayLoading, setOverlayLoading] = useState(false);
@@ -73,6 +76,10 @@ const HomePage = () => {
         params.set("difficulty", overlayDifficulty);
       }
 
+      if (overlayCategory) {
+        params.set("category", overlayCategory);
+      }
+
       const response = await api.get(`/journal/search/filter?${params.toString()}`);
       
       if (Array.isArray(response.data)) {
@@ -97,7 +104,7 @@ const HomePage = () => {
     } finally {
       setOverlayLoading(false);
     }
-  }, [overlaySearchText, overlayDifficulty, overlayPage]);
+  }, [overlaySearchText, overlayDifficulty, overlayCategory, overlayPage]);
 
   // Sync entries inside overlay whenever search, filter, or page triggers
   useEffect(() => {
@@ -107,7 +114,7 @@ const HomePage = () => {
       }, 300);
       return () => clearTimeout(timeout);
     }
-  }, [isOverlayOpen, overlaySearchText, overlayDifficulty, overlayPage, loadOverlayEntries]);
+  }, [isOverlayOpen, overlaySearchText, overlayDifficulty, overlayCategory, overlayPage, loadOverlayEntries]);
 
   // Handle Edit submission inside overlay
   const handleEditSubmit = async (e) => {
@@ -154,6 +161,7 @@ const HomePage = () => {
       topicName: entry.topicName,
       description: entry.description,
       studyDuration: entry.studyDuration,
+      category: entry.category || "Coding",
       difficultyLevel: entry.difficultyLevel,
     });
   };
@@ -162,6 +170,36 @@ const HomePage = () => {
     if (level === "Easy") return "badge badge-easy";
     if (level === "Medium") return "badge badge-medium";
     return "badge badge-hard";
+  };
+
+  const getCategoryColor = (category) => {
+    switch (category) {
+      case "Coding":
+        return "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20";
+      case "Research":
+        return "bg-sky-500/10 text-sky-400 border border-sky-500/20";
+      case "Writing":
+        return "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+      case "Review":
+        return "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+      case "Problem Solving":
+        return "bg-rose-500/10 text-rose-400 border border-rose-500/20";
+      case "Admin":
+      default:
+        return "bg-slate-500/10 text-slate-400 border border-slate-500/20";
+    }
+  };
+
+  const getCategoryTheme = (catName) => {
+    const themes = {
+      "Coding": { color: "#6366f1", label: "Coding", icon: "💻" },
+      "Research": { color: "#0ea5e9", label: "Research", icon: "🔍" },
+      "Writing": { color: "#10b981", label: "Writing", icon: "✍️" },
+      "Review": { color: "#f59e0b", label: "Review", icon: "📖" },
+      "Problem Solving": { color: "#f43f5e", label: "Problem Solving", icon: "🧩" },
+      "Admin": { color: "#64748b", label: "Admin", icon: "⚙️" }
+    };
+    return themes[catName] || { color: "#64748b", label: catName, icon: "🏷️" };
   };
 
   return (
@@ -210,7 +248,7 @@ const HomePage = () => {
           </div>
 
           {/* Productivity & Recent Entries Widgets */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
             
             {/* Productivity Summary Card */}
             <div className="card p-5 md:p-6 flex flex-col justify-between">
@@ -250,6 +288,171 @@ const HomePage = () => {
               </div>
             </div>
 
+            {/* Category DNA breakdown card */}
+            <div className="card p-5 md:p-6 flex flex-col justify-between">
+              <div>
+                <h2 className="text-base md:text-xl font-bold mb-4 border-b border-[var(--border-color)] pb-2.5" style={{ color: "var(--text-primary)" }}>
+                  Category DNA
+                </h2>
+
+                {/* Donut Chart Block */}
+                {(() => {
+                  const categoryData = dashboardData?.categoryStats || [];
+                  const totalCategoryHours = categoryData.reduce((acc, curr) => acc + curr.totalHours, 0);
+
+                  if (totalCategoryHours === 0) {
+                    return (
+                      <div className="flex flex-col items-center justify-center py-6 text-center">
+                        <div className="w-20 h-20 rounded-full border-2 border-dashed border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] opacity-50 mb-3">
+                          No Data
+                        </div>
+                        <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
+                          Complete a Focus Session or log study hours to build your category distribution!
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  // Sort categories by hours
+                  const sortedData = [...categoryData].sort((a, b) => b.totalHours - a.totalHours);
+
+                  // Math for donut slices
+                  let accumulatedPercent = 0;
+                  const radius = 38;
+                  const circ = 2 * Math.PI * radius; // ~238.76
+
+                  return (
+                    <div className="space-y-4">
+                      {/* Donut graphic & visual text */}
+                      <div className="flex items-center justify-center gap-5 my-1">
+                        <div className="relative w-24 h-24 flex-shrink-0">
+                          <svg className="w-full h-full transform -rotate-90">
+                            {/* Background Circle */}
+                            <circle
+                              cx="50%"
+                              cy="50%"
+                              r={radius}
+                              fill="transparent"
+                              stroke="var(--border-color)"
+                              strokeWidth="7"
+                              className="opacity-20"
+                            />
+                            {sortedData.map((item) => {
+                              const t = getCategoryTheme(item._id);
+                              const percent = (item.totalHours / totalCategoryHours) * 100;
+                              const offset = circ - (percent / 100) * circ;
+                              
+                              const segmentDash = `${(percent / 100) * circ} ${circ}`;
+                              const strokeDashoffset = circ - (accumulatedPercent / 100) * circ;
+                              
+                              accumulatedPercent += percent;
+                              
+                              const isHovered = hoveredCategory === item._id;
+
+                              return (
+                                <circle
+                                  key={item._id}
+                                  cx="50%"
+                                  cy="50%"
+                                  r={radius}
+                                  fill="transparent"
+                                  stroke={t.color}
+                                  strokeWidth={isHovered ? "9" : "7"}
+                                  strokeDasharray={segmentDash}
+                                  strokeDashoffset={strokeDashoffset}
+                                  strokeLinecap="round"
+                                  className="transition-all duration-300 cursor-pointer"
+                                  style={{
+                                    transformOrigin: "50% 50%",
+                                    filter: isHovered ? `drop-shadow(0 0 4px ${t.color})` : "none",
+                                  }}
+                                  onMouseEnter={() => setHoveredCategory(item._id)}
+                                  onMouseLeave={() => setHoveredCategory(null)}
+                                />
+                              );
+                            })}
+                          </svg>
+
+                          {/* Center info panel inside Donut */}
+                          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            {hoveredCategory ? (
+                              <>
+                                <span className="text-[12px] font-extrabold" style={{ color: getCategoryTheme(hoveredCategory).color }}>
+                                  {(() => {
+                                    const match = sortedData.find(d => d._id === hoveredCategory);
+                                    return match ? `${match.totalHours.toFixed(1)}h` : "";
+                                  })()}
+                                </span>
+                                <span className="text-[8px] uppercase font-semibold opacity-75 truncate max-w-[50px]" style={{ color: "var(--text-secondary)" }}>
+                                  {getCategoryTheme(hoveredCategory).label}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-[13px] font-extrabold" style={{ color: "var(--text-primary)" }}>
+                                  {totalCategoryHours.toFixed(1)}h
+                                </span>
+                                <span className="text-[8px] uppercase tracking-wider font-semibold opacity-75" style={{ color: "var(--text-secondary)" }}>
+                                  Total
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Top Category Tag Summary */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                            Top Category
+                          </p>
+                          <p className="text-sm font-extrabold text-[var(--text-primary)] truncate">
+                            {sortedData[0] ? `${getCategoryTheme(sortedData[0]._id).icon} ${sortedData[0]._id}` : "None"}
+                          </p>
+                          <p className="text-[9px] font-semibold text-[var(--text-secondary)]">
+                            {sortedData[0] ? `${((sortedData[0].totalHours / totalCategoryHours) * 100).toFixed(0)}% of focus time` : ""}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Legends List (scrollable) */}
+                      <div className="space-y-1 max-h-[110px] overflow-y-auto pr-1">
+                        {sortedData.map((item) => {
+                          const t = getCategoryTheme(item._id);
+                          const isHovered = hoveredCategory === item._id;
+                          return (
+                            <div 
+                              key={item._id}
+                              onMouseEnter={() => setHoveredCategory(item._id)}
+                              onMouseLeave={() => setHoveredCategory(null)}
+                              className={`flex items-center justify-between text-[11px] px-2 py-0.5 rounded-xl transition-all duration-200 cursor-pointer ${
+                                isHovered ? "bg-[var(--bg-card-hover)] scale-[1.02]" : "hover:bg-[rgba(255,255,255,0.03)]"
+                              }`}
+                            >
+                              <div className="flex items-center gap-1.5 font-semibold truncate flex-1 mr-2">
+                                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: t.color }} />
+                                <span className="truncate" style={{ color: "var(--text-primary)" }}>
+                                  {t.icon} {t.label}
+                                </span>
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                <span className="font-extrabold" style={{ color: "var(--text-primary)" }}>
+                                  {item.totalHours.toFixed(1)}h
+                                </span>
+                                <span className="text-[9px] ml-1 opacity-70" style={{ color: "var(--text-secondary)" }}>
+                                  ({((item.totalHours / totalCategoryHours) * 100).toFixed(0)}%)
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+
             {/* Recent Entries Card with Maximize Expander */}
             <div className="card p-5 md:p-6 relative">
               <div className="flex items-center justify-between mb-4 border-b border-[var(--border-color)] pb-2.5">
@@ -269,7 +472,7 @@ const HomePage = () => {
                 </button>
               </div>
 
-              <div className="space-y-3.5 max-h-[220px] overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
                 {dashboardData?.recentEntries && dashboardData.recentEntries.length > 0 ? (
                   dashboardData.recentEntries.map((entry) => (
                     <div
@@ -286,10 +489,17 @@ const HomePage = () => {
                         </span>
                       </div>
 
-                      <p className="text-[10px] sm:text-xs mt-1.5 flex items-center gap-1.5" style={{ color: "var(--text-secondary)" }}>
-                        <FaClock size={11} className="text-[var(--purple)]" />
-                        <span>{entry.studyDuration}h studied</span>
-                      </p>
+                      <div className="flex items-center justify-between gap-2 mt-1.5 text-[10px] sm:text-xs text-[var(--text-secondary)]">
+                        <span className="flex items-center gap-1.5">
+                          <FaClock size={11} className="text-[var(--purple)]" />
+                          <span>{entry.studyDuration}h studied</span>
+                        </span>
+                        {entry.category && (
+                          <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${getCategoryColor(entry.category)}`}>
+                            {entry.category}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -328,9 +538,9 @@ const HomePage = () => {
                 </div>
 
                 {/* Filters Row */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-5">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-5">
                   {/* Search Bar */}
-                  <div className="md:col-span-8 relative">
+                  <div className="lg:col-span-6 relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--text-secondary)" }}>
                       <FaSearch size={14} />
                     </span>
@@ -346,8 +556,33 @@ const HomePage = () => {
                     />
                   </div>
 
+                  {/* Category filter dropdown */}
+                  <div className="lg:col-span-3">
+                    <select
+                      value={overlayCategory}
+                      onChange={(e) => {
+                        setOverlayCategory(e.target.value);
+                        setOverlayPage(1);
+                      }}
+                      className="input-field w-full font-semibold"
+                      style={{
+                        border: "1px solid var(--border-color)",
+                        background: "var(--bg-card-hover)",
+                        color: "var(--text-primary)",
+                      }}
+                    >
+                      <option value="">All Categories</option>
+                      <option value="Coding">💻 Coding</option>
+                      <option value="Research">🔍 Research</option>
+                      <option value="Writing">✍️ Writing</option>
+                      <option value="Review">📖 Review</option>
+                      <option value="Problem Solving">🧩 Problem Solving</option>
+                      <option value="Admin">⚙️ Admin</option>
+                    </select>
+                  </div>
+
                   {/* Difficulty selector presets */}
-                  <div className="md:col-span-4 flex items-center gap-1.5">
+                  <div className="lg:col-span-3 flex items-center gap-1.5">
                     {["", "Easy", "Medium", "Hard"].map((difficulty) => (
                       <button
                         key={difficulty}
@@ -434,9 +669,16 @@ const HomePage = () => {
                               <span>{entry.studyDuration}h elapsed</span>
                             </div>
 
-                            <span className={`${getDifficultyBadge(entry.difficultyLevel)} text-xs px-2.5 py-0.5`}>
-                              {entry.difficultyLevel}
-                            </span>
+                            <div className="flex items-center gap-1.5">
+                              {entry.category && (
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${getCategoryColor(entry.category)}`}>
+                                  {entry.category}
+                                </span>
+                              )}
+                              <span className={`${getDifficultyBadge(entry.difficultyLevel)} text-xs px-2.5 py-0.5`}>
+                                {entry.difficultyLevel}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       ))}

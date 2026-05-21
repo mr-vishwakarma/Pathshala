@@ -19,6 +19,12 @@ const learningEntrySchema =
         required: true,
       },
 
+      category: {
+        type: String,
+        enum: ["Coding", "Research", "Writing", "Review", "Problem Solving", "Admin"],
+        default: "Coding",
+      },
+
       difficultyLevel: {
         type: String,
 

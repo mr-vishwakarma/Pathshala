@@ -8,11 +8,13 @@ const defaultFormData = {
   description: "",
   studyDuration: "",
   difficultyLevel: "Easy",
+  category: "Coding",
 };
 
 const JournalPage = () => {
   // Timer States
   const [focusTopic, setFocusTopic] = useState("");
+  const [focusCategory, setFocusCategory] = useState("Coding");
   const [duration, setDuration] = useState(20); // default 20 minutes
   const [customDuration, setCustomDuration] = useState("");
   const [timeLeft, setTimeLeft] = useState(20 * 60);
@@ -66,6 +68,7 @@ const JournalPage = () => {
         isActive,
         isPaused,
         focusTopic,
+        focusCategory,
         duration,
         currentSessionId,
       };
@@ -79,7 +82,7 @@ const JournalPage = () => {
     } else {
       localStorage.removeItem("activeFocusSession");
     }
-  }, [isActive, isPaused, focusTopic, duration, currentSessionId]);
+  }, [isActive, isPaused, focusTopic, focusCategory, duration, currentSessionId]);
 
   // 3. Restore state on component mount
   useEffect(() => {
@@ -91,6 +94,7 @@ const JournalPage = () => {
         const parsed = JSON.parse(saved);
         if (parsed.isActive) {
           setFocusTopic(parsed.focusTopic || "");
+          setFocusCategory(parsed.focusCategory || "Coding");
           setDuration(parsed.duration || 20);
           setCurrentSessionId(parsed.currentSessionId || null);
 
@@ -131,6 +135,7 @@ const JournalPage = () => {
         await api.put(`/focus/complete/${parsed.currentSessionId}`, {
           description: `Completed focus session on ${parsed.focusTopic || "unspecified topic"}.`,
           difficultyLevel: "Medium",
+          category: parsed.focusCategory || "Coding",
         });
         toast.success("Focus session synced to learning journal!");
         
@@ -140,6 +145,7 @@ const JournalPage = () => {
           description: `Successfully focused for ${parsed.duration} minutes on ${parsed.focusTopic || "unspecified topic"}.`,
           studyDuration: decimalHours,
           difficultyLevel: "Medium",
+          category: parsed.focusCategory || "Coding",
         });
 
         loadFocusStats();
@@ -153,6 +159,7 @@ const JournalPage = () => {
         description: `Successfully completed a focus session of ${parsed.duration} minutes.`,
         studyDuration: decimalHours,
         difficultyLevel: "Medium",
+        category: parsed.focusCategory || "Coding",
       });
     }
   };
@@ -229,6 +236,7 @@ const JournalPage = () => {
         const response = await api.put(`/focus/complete/${finalSessionId}`, {
           description: `Completed focus session on ${focusTopic || "unspecified topic"}.`,
           difficultyLevel: "Medium",
+          category: focusCategory,
         });
         toast.success("Focus session successfully synced to learning journal!");
         
@@ -239,6 +247,7 @@ const JournalPage = () => {
           description: `Successfully focused for ${duration} minutes on ${focusTopic || "unspecified topic"}.`,
           studyDuration: decimalHours,
           difficultyLevel: "Medium",
+          category: focusCategory,
         });
 
         loadFocusStats();
@@ -253,6 +262,7 @@ const JournalPage = () => {
         description: `Successfully completed a focus session of ${duration} minutes.`,
         studyDuration: decimalHours,
         difficultyLevel: "Medium",
+        category: focusCategory,
       });
     }
   };
@@ -268,6 +278,7 @@ const JournalPage = () => {
       const response = await api.post("/focus/start", {
         topicName: focusTopic,
         duration: duration,
+        category: focusCategory,
       });
       setCurrentSessionId(response.data.session._id);
       setIsActive(true);
@@ -409,21 +420,39 @@ const JournalPage = () => {
               )}
             </div>
 
-            {/* Focus Topic Input */}
-            <div className="w-full mb-6">
+            {/* Focus Topic Input & Category Selector */}
+            <div className="w-full flex flex-col sm:flex-row gap-2.5 mb-6">
               <input
                 type="text"
                 value={focusTopic}
                 onChange={(e) => setFocusTopic(e.target.value)}
                 placeholder="What topic are you focusing on?"
                 disabled={isActive}
-                className="input-field w-full text-center text-sm md:text-base font-semibold"
+                className="input-field flex-1 text-center sm:text-left text-sm md:text-base font-semibold"
                 style={{
                   border: "1px solid var(--border-color)",
                   background: isActive ? "rgba(0,0,0,0.05)" : "var(--bg-card-hover)",
                   cursor: isActive ? "not-allowed" : "text",
                 }}
               />
+              <select
+                value={focusCategory}
+                onChange={(e) => setFocusCategory(e.target.value)}
+                disabled={isActive}
+                className="input-field text-xs md:text-sm font-semibold max-w-full sm:max-w-[150px] cursor-pointer"
+                style={{
+                  border: "1px solid var(--border-color)",
+                  background: isActive ? "rgba(0,0,0,0.05)" : "var(--bg-card-hover)",
+                  cursor: isActive ? "not-allowed" : "pointer",
+                }}
+              >
+                <option value="Coding">💻 Coding</option>
+                <option value="Research">🔍 Research</option>
+                <option value="Writing">📝 Writing</option>
+                <option value="Review">👀 Review</option>
+                <option value="Problem Solving">🧩 Problem Solving</option>
+                <option value="Admin">⚙️ Admin</option>
+              </select>
             </div>
 
             {/* Circular SVG Timer */}
@@ -511,6 +540,19 @@ const JournalPage = () => {
                 </>
               )}
             </div>
+
+            {/* Cognitive Load Advisory */}
+            {(duration >= 50 || stats.todayMinutes >= 50) && (
+              <div className="mt-4 w-full p-3 rounded-2xl border border-amber-500/30 bg-amber-500/5 text-amber-500 text-xs text-left flex items-start gap-2.5 animate-pulse">
+                <span className="text-base">⚠️</span>
+                <div>
+                  <span className="font-extrabold block">Cognitive Load Advisory</span>
+                  <span className="opacity-90">
+                    You have focused for {duration >= 50 ? `${duration}m in this block` : `${stats.todayMinutes}m today`}. Rize recommends a 5-minute break to restore mental stamina and memory retention.
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Presets List */}
             <div className="w-full mt-6 pt-4 border-t border-[var(--border-color)]">
@@ -696,7 +738,7 @@ const JournalPage = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>
                       Study Duration (hours)
@@ -725,6 +767,25 @@ const JournalPage = () => {
                       <option value="Easy">Easy</option>
                       <option value="Medium">Medium</option>
                       <option value="Hard">Hard</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>
+                      Category
+                    </label>
+                    <select
+                      name="category"
+                      value={formData.category || "Coding"}
+                      onChange={handleFormChange}
+                      className="input-field text-sm md:text-base w-full"
+                    >
+                      <option value="Coding">Coding</option>
+                      <option value="Research">Research</option>
+                      <option value="Writing">Writing</option>
+                      <option value="Review">Review</option>
+                      <option value="Problem Solving">Problem Solving</option>
+                      <option value="Admin">Admin</option>
                     </select>
                   </div>
                 </div>

@@ -26,7 +26,7 @@ const JournalForm = ({
         className="input-field resize-none text-sm md:text-base"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
         <input
           type="number"
           name="studyDuration"
@@ -35,6 +35,20 @@ const JournalForm = ({
           placeholder="Study duration (hours)"
           className="input-field text-sm md:text-base"
         />
+
+        <select
+          name="category"
+          value={formData.category || "Coding"}
+          onChange={onChange}
+          className="input-field text-sm md:text-base"
+        >
+          <option value="Coding">Coding</option>
+          <option value="Research">Research</option>
+          <option value="Writing">Writing</option>
+          <option value="Review">Review</option>
+          <option value="Problem Solving">Problem Solving</option>
+          <option value="Admin">Admin</option>
+        </select>
 
         <select
           name="difficultyLevel"

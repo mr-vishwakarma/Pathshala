@@ -50,6 +50,16 @@ const getDashboardStats = async (req, res) => {
       productivityLevel = "Medium";
     }
 
+    const categoryStats = await LearningEntry.aggregate([
+      { $match: { user: userId } },
+      {
+        $group: {
+          _id: { $ifNull: ["$category", "Coding"] },
+          totalHours: { $sum: "$studyDuration" },
+        },
+      },
+    ]);
+
     res.status(200).json({
       totalEntries,
       totalStudyHours,
@@ -57,6 +67,7 @@ const getDashboardStats = async (req, res) => {
       difficultyStats,
       weeklyStudyStats,
       recentEntries,
+      categoryStats,
     });
   } catch (error) {
     res.status(500).json({
