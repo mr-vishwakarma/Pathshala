@@ -10,6 +10,7 @@ const path = require("path");
 const errorMiddleware = require("./middleware/error.middleware");
 
 const journalRoutes = require("./routes/journal.routes");
+const focusRoutes = require("./routes/focus.routes");
 
 const dashboardRoutes = require("./routes/dashboard.routes");
 const profileRoutes = require("./routes/profile.routes");
@@ -61,6 +62,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use("/api/auth", authRoutes);
 
 app.use("/api/journal", journalRoutes);
+app.use("/api/focus", focusRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(errorMiddleware);
