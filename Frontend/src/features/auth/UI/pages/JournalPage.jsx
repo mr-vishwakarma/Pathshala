@@ -46,9 +46,116 @@ const JournalPage = () => {
     }
   }, []);
 
+  // 1. Unload warning for active ticking sessions
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isActive && !isPaused) {
+        e.preventDefault();
+        e.returnValue = "You have an active focus session. If you close this tab, progress won't be saved.";
+        return e.returnValue;
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isActive, isPaused]);
+
+  // 2. Sync Focus Session to Local Storage ONLY on state changes (avoiding daily write operations on tick counts!)
+  useEffect(() => {
+    if (isActive) {
+      const saved = {
+        isActive,
+        isPaused,
+        focusTopic,
+        duration,
+        currentSessionId,
+      };
+      if (isPaused) {
+        saved.timeLeft = timeLeft;
+      } else {
+        // Save target completion wall time
+        saved.endTimeStamp = Date.now() + timeLeft * 1000;
+      }
+      localStorage.setItem("activeFocusSession", JSON.stringify(saved));
+    } else {
+      localStorage.removeItem("activeFocusSession");
+    }
+  }, [isActive, isPaused, focusTopic, duration, currentSessionId]);
+
+  // 3. Restore state on component mount
   useEffect(() => {
     loadFocusStats();
+    
+    const saved = localStorage.getItem("activeFocusSession");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.isActive) {
+          setFocusTopic(parsed.focusTopic || "");
+          setDuration(parsed.duration || 20);
+          setCurrentSessionId(parsed.currentSessionId || null);
+
+          if (parsed.isPaused) {
+            setTimeLeft(parsed.timeLeft);
+            setIsActive(true);
+            setIsPaused(true);
+          } else {
+            // Actively ticking before unmounting, compute exact elapsed time
+            const remaining = Math.max(0, Math.round((parsed.endTimeStamp - Date.now()) / 1000));
+            if (remaining > 0) {
+              setTimeLeft(remaining);
+              setIsActive(true);
+              setIsPaused(false);
+            } else {
+              // Timer already completed while away, trigger finish immediately
+              setTimeLeft(0);
+              setIsActive(false);
+              setIsPaused(false);
+              handleTimerCompleteOnRestore(parsed);
+            }
+          }
+        }
+      } catch (err) {
+        console.log("Failed to restore focus session state", err);
+      }
+    }
   }, [loadFocusStats]);
+
+  // Handler for timer completion on mount restore
+  const handleTimerCompleteOnRestore = async (parsed) => {
+    playCompletionSound();
+    toast.success(`You successfully completed a ${parsed.duration}-minute Focus Session on "${parsed.focusTopic || "unspecified topic"}" while you were away!`, { duration: 10000 });
+    localStorage.removeItem("activeFocusSession");
+
+    if (parsed.currentSessionId) {
+      try {
+        await api.put(`/focus/complete/${parsed.currentSessionId}`, {
+          description: `Completed focus session on ${parsed.focusTopic || "unspecified topic"}.`,
+          difficultyLevel: "Medium",
+        });
+        toast.success("Focus session synced to learning journal!");
+        
+        const decimalHours = parseFloat((parsed.duration / 60).toFixed(2));
+        setFormData({
+          topicName: parsed.focusTopic || "Focus Session",
+          description: `Successfully focused for ${parsed.duration} minutes on ${parsed.focusTopic || "unspecified topic"}.`,
+          studyDuration: decimalHours,
+          difficultyLevel: "Medium",
+        });
+
+        loadFocusStats();
+      } catch (error) {
+        console.log("Failed to sync remote completed session on restore", error);
+      }
+    } else {
+      const decimalHours = parseFloat((parsed.duration / 60).toFixed(2));
+      setFormData({
+        topicName: parsed.focusTopic || "Focus Session",
+        description: `Successfully completed a focus session of ${parsed.duration} minutes.`,
+        studyDuration: decimalHours,
+        difficultyLevel: "Medium",
+      });
+    }
+  };
 
   // Audio completion sound using Web Audio API
   const playCompletionSound = () => {
