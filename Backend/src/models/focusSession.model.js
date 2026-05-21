@@ -36,4 +36,7 @@ const focusSessionSchema = new mongoose.Schema(
   }
 );
 
+// Compound Index for Scalability (500+ users)
+focusSessionSchema.index({ user: 1, status: 1, updatedAt: -1 });
+
 module.exports = mongoose.model("FocusSession", focusSessionSchema);

@@ -48,6 +48,12 @@ const learningEntrySchema =
     }
   );
 
+// Compound and Text Indexes for Scalability (500+ users)
+learningEntrySchema.index({ user: 1, createdAt: -1 });
+learningEntrySchema.index({ user: 1, category: 1 });
+learningEntrySchema.index({ user: 1, difficultyLevel: 1 });
+learningEntrySchema.index({ topicName: "text", description: "text" });
+
 module.exports = mongoose.model(
   "LearningEntry",
   learningEntrySchema

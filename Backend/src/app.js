@@ -53,6 +53,26 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+const compression = require("compression");
+const rateLimit = require("express-rate-limit");
+
+// Global GZIP payload compression
+app.use(compression());
+
+// Define rate limiter for heavy/expensive operations (dashboard aggregates and search text queries)
+const statsLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  message: { message: "Too many requests, please try again in 15 minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Mount rate limiters before routing definition
+app.use("/api/dashboard", statsLimiter);
+app.use("/api/journal/search", statsLimiter);
+
 app.use("/api/dashboard", dashboardRoutes);
 
 app.set("view engine", "ejs");

@@ -4,44 +4,60 @@ const getDashboardStats = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const totalEntries = await LearningEntry.countDocuments({ user: userId });
-
-    const recentEntries = await LearningEntry.find({ user: userId })
-      .sort({ createdAt: -1 })
-      .limit(5);
-
-    const totalStudyHoursResult = await LearningEntry.aggregate([
-      { $match: { user: userId } },
-      {
-        $group: {
-          _id: null,
-          totalHours: { $sum: "$studyDuration" },
+    // Run aggregations concurrently with Promise.all and lean queries to prevent blocking the event loop
+    const [
+      totalEntries,
+      recentEntries,
+      totalStudyHoursResult,
+      difficultyStats,
+      weeklyStudyStats,
+      categoryStats,
+    ] = await Promise.all([
+      LearningEntry.countDocuments({ user: userId }),
+      LearningEntry.find({ user: userId })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(), // Bypasses expensive Mongoose document wrapper hydration class instantiation
+      LearningEntry.aggregate([
+        { $match: { user: userId } },
+        {
+          $group: {
+            _id: null,
+            totalHours: { $sum: "$studyDuration" },
+          },
         },
-      },
+      ]),
+      LearningEntry.aggregate([
+        { $match: { user: userId } },
+        {
+          $group: {
+            _id: "$difficultyLevel",
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      LearningEntry.aggregate([
+        { $match: { user: userId } },
+        {
+          $group: {
+            _id: { $dayOfWeek: "$createdAt" },
+            totalHours: { $sum: "$studyDuration" },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+      LearningEntry.aggregate([
+        { $match: { user: userId } },
+        {
+          $group: {
+            _id: { $ifNull: ["$category", "Coding"] },
+            totalHours: { $sum: "$studyDuration" },
+          },
+        },
+      ]),
     ]);
 
     const totalStudyHours = totalStudyHoursResult[0]?.totalHours || 0;
-
-    const difficultyStats = await LearningEntry.aggregate([
-      { $match: { user: userId } },
-      {
-        $group: {
-          _id: "$difficultyLevel",
-          count: { $sum: 1 },
-        },
-      },
-    ]);
-
-    const weeklyStudyStats = await LearningEntry.aggregate([
-      { $match: { user: userId } },
-      {
-        $group: {
-          _id: { $dayOfWeek: "$createdAt" },
-          totalHours: { $sum: "$studyDuration" },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ]);
 
     let productivityLevel = "Low";
     if (totalStudyHours >= 20) {
@@ -49,16 +65,6 @@ const getDashboardStats = async (req, res) => {
     } else if (totalStudyHours >= 10) {
       productivityLevel = "Medium";
     }
-
-    const categoryStats = await LearningEntry.aggregate([
-      { $match: { user: userId } },
-      {
-        $group: {
-          _id: { $ifNull: ["$category", "Coding"] },
-          totalHours: { $sum: "$studyDuration" },
-        },
-      },
-    ]);
 
     res.status(200).json({
       totalEntries,
